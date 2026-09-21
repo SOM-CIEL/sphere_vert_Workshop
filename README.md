@@ -292,12 +292,12 @@ main
 Exemples :
 
 ```text
-feat: ajout lecture temperature
-feat: ajout publication MQTT
-fix: correction connexion wifi
-fix: correction topic mqtt
-docs: ajout schema reseau
-refactor: separation lecture et envoi des donnees
+feat: ajout lecture temperature @utilisateur
+feat: ajout publication MQTT @utilisateur
+fix: correction connexion wifi @utilisateur
+fix: correction topic mqtt @utilisateur
+docs: ajout schema reseau @utilisateur
+refactor: separation lecture et envoi des donnees @utilisateur
 ```
 
 ---
