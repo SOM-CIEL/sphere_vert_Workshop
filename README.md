@@ -146,23 +146,30 @@ horizon-2080/
 │
 ├── README.md
 ├── .gitignore
+├── .env.example
+├── compose.yaml
+│
+├── mosquitto/
+│   └── config/
+│       ├── mosquitto.conf
+│       └── passwd
 │
 ├── esp32/
 │   ├── environnement/
 │   │   ├── src/
 │   │   └── README.md
 │   │
-│   ├── agritech/
-│   │   ├── src/
-│   │   └── README.md
-│   │
+│   └── agritech/
+│       ├── src/
+│       └── README.md
+│
+├── esp8266/
 │   └── securite/
 │       ├── src/
 │       └── README.md
 │
 ├── server/
 │   ├── backend/
-│   ├── mqtt/
 │   ├── database/
 │   └── README.md
 │

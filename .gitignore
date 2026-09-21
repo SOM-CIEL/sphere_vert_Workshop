@@ -17,3 +17,7 @@ node_modules/
 
 # PlatformIO
 .pio/
+
+# MQTT
+mosquitto/data/
+mosquitto/log/
