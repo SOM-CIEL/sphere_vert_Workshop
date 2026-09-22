@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from .database import get_db_connection, init_db
 from fastapi_mqtt import FastMQTT, MQTTConfig
+import asyncio
 
 mqtt_config = MQTTConfig(
     host=os.getenv("MQTT_HOST"),
@@ -18,8 +19,12 @@ fast_mqtt = FastMQTT(config=mqtt_config)
 async def lifespan(app: FastAPI):
     init_db()
     await fast_mqtt.mqtt_startup()
+    task = asyncio.create_task(sauvegarder_mesures())
     print("startup termine")
+
     yield
+
+    task.cancel()
     await fast_mqtt.mqtt_shutdown()
 
 app = FastAPI(lifespan=lifespan)
@@ -56,14 +61,39 @@ async def message(client, topic, payload, qos, properties):
 
 
 
+async def sauvegarder_mesures():
+    while True:
+        conn = get_db_connection()
+        donnees = conn.execute("SELECT * FROM environnement").fetchone()
+        conn.execute("""
+        INSERT INTO mesures
+        (temperature, humidite, pression, luminosite)
+        VALUES (?, ?, ?, ?)
+        """, (donnees["temperature"], donnees["humidite"], donnees["pression"], donnees["luminosite"]))
+        conn.commit()
+        conn.close()
+        await asyncio.sleep(500)
+
+
+
+
 @app.get("/")
 async def root():
     return {"message": "Horizon 2080 backend"}
 
 @app.get("/environnement")
-async def getEnvironnement():
+async def get_environnement():
     conn = get_db_connection()
-    donnees = conn.execute("SELECT * FROM environnement").fetchall()
+    donnees = conn.execute("SELECT * FROM environnement").fetchone()
+    conn.close()
+
+    return donnees
+
+
+@app.get("/mesures")
+async def get_mesures():
+    conn = get_db_connection()
+    donnees = conn.execute("SELECT * FROM mesures").fetchall()
     conn.close()
 
     return donnees

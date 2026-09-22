@@ -22,6 +22,17 @@ def init_db():
         )
     """)
 
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS mesures (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            temperature REAL,
+            humidite REAL,
+            pression REAL,
+            luminosite REAL
+        )
+    """)
+
     if conn.execute("SELECT COUNT(*) FROM environnement").fetchone()[0] == 0:
         conn.execute("""
             INSERT INTO environnement
