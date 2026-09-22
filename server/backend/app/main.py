@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-
+from .database import get_db_connection, init_db
 from fastapi_mqtt import FastMQTT, MQTTConfig
 
 mqtt_config = MQTTConfig(
@@ -16,7 +16,7 @@ fast_mqtt = FastMQTT(config=mqtt_config)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("demarrage mqtt")
+    init_db()
     await fast_mqtt.mqtt_startup()
     print("startup termine")
     yield
@@ -27,15 +27,43 @@ app = FastAPI(lifespan=lifespan)
 
 @fast_mqtt.on_connect()
 def connect(client, flags, rc, properties):
-    print("CALLBACK CONNECT APPELE", flush=True)
     client.subscribe("vaisseau/#")
     print("Connecte a vaisseau/#", flush=True)
 
+
+
 @fast_mqtt.on_message()
 async def message(client, topic, payload, qos, properties):
-    print(f"Message recu: {payload.decode()}", flush=True)
+    value = float(payload.decode())
+
+    conn = get_db_connection()
+    
+    if topic == "vaisseau/environnement/temperature":
+        conn.execute("UPDATE environnement SET temperature = ?", (value,))
+
+    elif topic == "vaisseau/environnement/humidite":
+        conn.execute("UPDATE environnement SET humidite = ?", (value,))
+
+    elif topic == "vaisseau/environnement/pression":
+        conn.execute("UPDATE environnement SET pression = ?", (value,))
+
+    elif topic == "vaisseau/environnement/luminosite":
+        conn.execute("UPDATE environnement SET luminosite = ?", (value,))
+        
+    conn.commit()
+    conn.close()
+    print(f"Topic: {topic}, Value: {value}", flush=True)
+
 
 
 @app.get("/")
 async def root():
     return {"message": "Horizon 2080 backend"}
+
+@app.get("/environnement")
+async def getEnvironnement():
+    conn = get_db_connection()
+    donnees = conn.execute("SELECT * FROM environnement").fetchall()
+    conn.close()
+
+    return donnees
