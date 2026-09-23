@@ -3,7 +3,9 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from .database import get_db_connection, init_db
 from fastapi_mqtt import FastMQTT, MQTTConfig
+from fastapi.staticfiles import StaticFiles
 import asyncio
+from pathlib import Path
 
 mqtt_config = MQTTConfig(
     host=os.getenv("MQTT_HOST"),
@@ -74,9 +76,8 @@ async def sauvegarder_mesures():
 
 
 
-@app.get("/")
-async def root():
-    return {"message": "Horizon 2080 backend"}
+FRONTEND_DIR = Path(__file__).resolve().parents[1] / "web" / "frontend"
+
 
 @app.get("/environnement")
 async def get_environnement():
@@ -94,3 +95,5 @@ async def get_mesures():
     conn.close()
 
     return donnees
+
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

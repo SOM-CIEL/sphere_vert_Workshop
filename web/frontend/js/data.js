@@ -8,7 +8,7 @@
 //                          en direct par le backend à chaque message MQTT)
 //   GET /mesures        -> historique (un instantané toutes les 30s)
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = 'http://localhost:8000';
 
 async function fetchEnvironnementActuel() {
   const reponse = await fetch(`${API_BASE_URL}/environnement`);
