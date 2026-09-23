@@ -31,6 +31,18 @@ Chart.register(centerTextPlugin);
 // value peut être null (capteur pas encore branché) : la jauge s'affiche
 // alors vide/grise avec "--" au centre, plutôt que de planter ou d'inventer
 // un chiffre.
+// Met à jour une jauge existante (créée par createGauge) au lieu d'en
+// recréer une par-dessus — Chart.js refuse un 2e chart sur le même canvas.
+export function updateGauge(chart, value, max, color) {
+  const hasValue = typeof value === 'number' && !Number.isNaN(value);
+  const filled = hasValue ? value : 0;
+  chart.data.datasets[0].data = [filled, Math.max(max - filled, 0)];
+  chart.data.datasets[0].backgroundColor[0] = hasValue ? color : '#DCEAE2';
+  chart.options.plugins.centerText.text = hasValue ? `${Math.round(value)}%` : '--';
+  chart.options.plugins.centerText.color = hasValue ? color : '#4B6C5D';
+  chart.update();
+}
+
 export function createGauge(canvasId, value, max, color, subtext) {
   const hasValue = typeof value === 'number' && !Number.isNaN(value);
   const filled = hasValue ? value : 0;
