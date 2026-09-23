@@ -81,12 +81,13 @@ void loop() {
 
     if (client.connect("esp8266_securite", mqtt_user, mqtt_password)) {
       Serial.println("MQTT reconnecté");
-    } else {
+    }
+    else {
       Serial.print("Échec MQTT : ");
       Serial.println(client.state());
       delay(2000);
       return;
-      }
+    }
   }
 
 
