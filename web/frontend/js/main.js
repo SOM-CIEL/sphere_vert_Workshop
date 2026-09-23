@@ -30,7 +30,7 @@ async function init() {
     createGauge('batteryGauge', data.energie.batterie, 100, '#16B876', 'Charge');
   } catch (erreur) {
     console.error(erreur);
-    showError(`Impossible de charger les données (${erreur.message}). Vérifie que l'API tourne (uvicorn) et que le CORS est activé.`);
+    showError(`Impossible de charger les données (${erreur.message}). Vérifie que le backend tourne sur le port 8000.`);
     createGauge('o2Gauge', null, 25, '#16B876', 'O₂');
     createGauge('batteryGauge', null, 100, '#16B876', 'Charge');
   }
