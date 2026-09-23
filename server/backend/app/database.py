@@ -17,7 +17,6 @@ def init_db():
         CREATE TABLE IF NOT EXISTS environnement (
             temperature REAL,
             humidite REAL,
-            pression REAL,
             luminosite REAL
         )
     """)
@@ -25,10 +24,9 @@ def init_db():
     conn.execute("""
         CREATE TABLE IF NOT EXISTS mesures (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            timestamp DATETIME DEFAULT (datetime('now', '+2 hours')),
             temperature REAL,
             humidite REAL,
-            pression REAL,
             luminosite REAL
         )
     """)
@@ -36,8 +34,8 @@ def init_db():
     if conn.execute("SELECT COUNT(*) FROM environnement").fetchone()[0] == 0:
         conn.execute("""
             INSERT INTO environnement
-            (temperature, humidite, pression, luminosite)
-            VALUES (NULL, NULL, NULL, NULL)
+            (temperature, humidite, luminosite)
+            VALUES (NULL, NULL, NULL)
         """)
 
     conn.commit()
