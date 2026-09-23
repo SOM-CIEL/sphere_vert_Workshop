@@ -13,7 +13,7 @@ import {
   updateCharts,
 } from './charts.js';
 
-const REFRESH_INTERVAL_MS = 5000;
+const REFRESH_INTERVAL_MS = 2000;
 
 startClock();
 
