@@ -30,30 +30,22 @@ async function fetchMesures() {
 }
 
 // -----------------------------------------------------------------------
-// 🔧 TODO : ces capteurs n'ont pas encore de table/route côté backend.
-// Quand ils existeront, remplace le corps de chaque fonction par un vrai
-// fetch (même modèle que fetchEnvironnementActuel ci-dessus). En
-// attendant, elles renvoient null pour que l'interface affiche "--" plutôt
-// que d'inventer une valeur.
+// 🔧 TODO : la porte n'a pas encore de table/route côté backend. Quand
+// elle existera, remplace le corps de cette fonction par un vrai fetch
+// (même modèle que fetchEnvironnementActuel ci-dessus). En attendant elle
+// renvoie null pour que l'interface affiche "--" plutôt que d'inventer
+// une valeur.
 // -----------------------------------------------------------------------
-async function fetchAgritech() {
-  return { humiditeSol: null };
-}
 async function fetchSecurite() {
   return { porte: null }; // porte: "ouverte" | "fermee" | "verrouillee"
-}
-async function fetchEnergie() {
-  return { batterie: null, solaire: null };
 }
 
 // Point d'entrée unique utilisé par main.js.
 export async function chargerDonnees() {
-  const [actuel, historique, agritech, securite, energie] = await Promise.all([
+  const [actuel, historique, securite] = await Promise.all([
     fetchEnvironnementActuel(),
     fetchMesures(),
-    fetchAgritech(),
     fetchSecurite(),
-    fetchEnergie(),
   ]);
 
   return {
@@ -63,9 +55,7 @@ export async function chargerDonnees() {
       luminosite: actuel?.luminosite ?? null,
       co2: actuel?.co2 ?? null,
     },
-    agritech,
     securite,
-    energie,
     systemesEnLigne: true,
     historique,
   };

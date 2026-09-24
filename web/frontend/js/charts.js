@@ -1,5 +1,5 @@
 // Tout ce qui touche à Chart.js : le plugin de texte centré pour les
-// jauges, la fabrique de jauges, et les 3 graphiques d'historique.
+// jauges, la fabrique de jauges, et le graphique d'historique Environnement.
 
 Chart.defaults.font.family = '"Space Grotesk", sans-serif';
 Chart.defaults.color = '#4B6C5D';
@@ -116,63 +116,13 @@ export function createEnvChart() {
   });
 }
 
-export function createEnergyChart() {
-  return new Chart(document.getElementById('energyChart').getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [
-        { data: [], borderColor: '#16B876', backgroundColor: 'rgba(22,184,118,0.08)', fill: true, yAxisID: 'yBatt' },
-        { data: [], borderColor: '#052E1D', yAxisID: 'ySolar' },
-      ],
-    },
-    options: {
-      ...lineOptionsBase,
-      scales: {
-        x: { grid: { display: false }, ticks: { font: tickFont, maxTicksLimit: 5 } },
-        yBatt: { position: 'left', min: 0, max: 100, grid: { color: '#F1F8F4' }, ticks: { font: tickFont, maxTicksLimit: 4 } },
-        ySolar: { position: 'right', min: 0, max: 2.5, grid: { display: false }, ticks: { font: tickFont, maxTicksLimit: 4 } },
-      },
-    },
-  });
-}
-
-export function createGlobalChart() {
-  return new Chart(document.getElementById('globalChart').getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [
-        { data: [], borderColor: '#16B876', yAxisID: 'yTemp' },
-        { data: [], borderColor: '#052E1D', yAxisID: 'yPercent' },
-        { data: [], borderColor: '#22FF88', yAxisID: 'yLux' },
-      ],
-    },
-    options: {
-      ...lineOptionsBase,
-      scales: {
-        x: { grid: { display: false }, ticks: { font: tickFont, maxTicksLimit: 6 } },
-        yTemp: { position: 'left', grid: { color: '#F1F8F4' }, ticks: { font: tickFont, maxTicksLimit: 4 } },
-        yPercent: { position: 'right', grid: { display: false }, ticks: { font: tickFont, maxTicksLimit: 4 } },
-        yLux: { display: false },
-      },
-    },
-  });
-}
-
-// data.historique ne contient que temperature/humidite/luminosite pour
-// l'instant (seul module réellement en base) : batterie/solaire retombent
-// sur la valeur actuelle (constante) tant qu'ils n'ont pas leur propre
-// historique.
-export function updateCharts({ envChart, energyChart, globalChart }, data) {
+export function updateCharts({ envChart }, data) {
   const points = data.historique && data.historique.length > 0
     ? data.historique
     : [{
         heure: '--',
         temperature: data.environnement.temperature,
         humidite: data.environnement.humidite,
-        luminosite: data.environnement.luminosite,
-        co2: data.environnement.co2,
       }];
 
   const labels = points.map((p) => p.heure);
@@ -181,15 +131,4 @@ export function updateCharts({ envChart, energyChart, globalChart }, data) {
   envChart.data.datasets[0].data = points.map((p) => p.temperature);
   envChart.data.datasets[1].data = points.map((p) => p.humidite);
   envChart.update('none');
-
-  energyChart.data.labels = labels;
-  energyChart.data.datasets[0].data = points.map(() => data.energie.batterie);
-  energyChart.data.datasets[1].data = points.map(() => data.energie.solaire);
-  energyChart.update('none');
-
-  globalChart.data.labels = labels;
-  globalChart.data.datasets[0].data = points.map((p) => p.temperature);
-  globalChart.data.datasets[1].data = points.map((p) => p.humidite);
-  globalChart.data.datasets[2].data = points.map((p) => p.luminosite);
-  globalChart.update('none');
 }
