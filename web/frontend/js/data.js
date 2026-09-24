@@ -13,7 +13,7 @@ const API_BASE_URL = 'http://localhost:8000';
 async function fetchEnvironnementActuel() {
   const reponse = await fetch(`${API_BASE_URL}/environnement`);
   if (!reponse.ok) throw new Error(`GET /environnement : ${reponse.status}`);
-  return reponse.json(); // { temperature, humidite, luminosite }
+  return reponse.json(); // { temperature, humidite, luminosite, co2 }
 }
 
 async function fetchMesures() {
@@ -25,34 +25,27 @@ async function fetchMesures() {
     temperature: ligne.temperature,
     humidite: ligne.humidite,
     luminosite: ligne.luminosite,
+    co2: ligne.co2,
   }));
 }
 
 // -----------------------------------------------------------------------
-// 🔧 TODO : ces trois capteurs n'ont pas encore de table/route côté
-// backend. Quand ils existeront, remplace le corps de chaque fonction par
-// un vrai fetch (même modèle que fetchEnvironnementActuel ci-dessus). En
-// attendant, elles renvoient null pour que l'interface affiche "--" plutôt
-// que d'inventer une valeur.
+// 🔧 TODO : la porte n'a pas encore de table/route côté backend. Quand
+// elle existera, remplace le corps de cette fonction par un vrai fetch
+// (même modèle que fetchEnvironnementActuel ci-dessus). En attendant elle
+// renvoie null pour que l'interface affiche "--" plutôt que d'inventer
+// une valeur.
 // -----------------------------------------------------------------------
-async function fetchAgritech() {
-  return { humiditeSol: null };
-}
 async function fetchSecurite() {
-  return { o2: null, porte: null }; // porte: "ouverte" | "fermee" | "verrouillee"
-}
-async function fetchEnergie() {
-  return { batterie: null, solaire: null };
+  return { porte: null }; // porte: "ouverte" | "fermee" | "verrouillee"
 }
 
 // Point d'entrée unique utilisé par main.js.
 export async function chargerDonnees() {
-  const [actuel, historique, agritech, securite, energie] = await Promise.all([
+  const [actuel, historique, securite] = await Promise.all([
     fetchEnvironnementActuel(),
     fetchMesures(),
-    fetchAgritech(),
     fetchSecurite(),
-    fetchEnergie(),
   ]);
 
   return {
@@ -60,10 +53,9 @@ export async function chargerDonnees() {
       temperature: actuel?.temperature ?? null,
       humidite: actuel?.humidite ?? null,
       luminosite: actuel?.luminosite ?? null,
+      co2: actuel?.co2 ?? null,
     },
-    agritech,
     securite,
-    energie,
     systemesEnLigne: true,
     historique,
   };

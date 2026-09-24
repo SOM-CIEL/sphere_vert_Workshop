@@ -3,28 +3,22 @@
 // et se relance toutes les REFRESH_INTERVAL_MS pour rester à jour sans F5.
 
 import { chargerDonnees } from './data.js';
-import { startClock, renderValues, checkAlerts, showError } from './ui.js';
-import {
-  createGauge,
-  updateGauge,
-  createEnvChart,
-  createEnergyChart,
-  createGlobalChart,
-  updateCharts,
-} from './charts.js';
+import { startClock, renderValues, checkAlerts, showError, thresholds } from './ui.js';
+import { createGauge, updateGauge, createEnvChart, updateCharts } from './charts.js';
+import { initCamera } from './camera.js';
 
 const REFRESH_INTERVAL_MS = 1000;
+const CO2_GAUGE_MIN = 1000; // bornes de la jauge, en ppm (plage réellement observée)
+const CO2_GAUGE_MAX = 3000;
 
 startClock();
+initCamera();
 
 const charts = {
   envChart: createEnvChart(),
-  energyChart: createEnergyChart(),
-  globalChart: createGlobalChart(),
 };
 
-let o2Gauge = null;
-let batteryGauge = null;
+let co2Gauge = null;
 
 async function refresh() {
   try {
@@ -34,19 +28,20 @@ async function refresh() {
     checkAlerts(data);
     updateCharts(charts, data);
 
-    if (o2Gauge && batteryGauge) {
-      updateGauge(o2Gauge, data.securite.o2, 25, '#16B876');
-      updateGauge(batteryGauge, data.energie.batterie, 100, '#16B876');
+    const co2Color = typeof data.environnement.co2 === 'number' && data.environnement.co2 > thresholds.co2Max
+      ? '#DC2626'
+      : '#16B876';
+
+    if (co2Gauge) {
+      updateGauge(co2Gauge, data.environnement.co2, CO2_GAUGE_MAX, co2Color, '', CO2_GAUGE_MIN);
     } else {
-      o2Gauge = createGauge('o2Gauge', data.securite.o2, 25, '#16B876', 'O₂');
-      batteryGauge = createGauge('batteryGauge', data.energie.batterie, 100, '#16B876', 'Charge');
+      co2Gauge = createGauge('co2Gauge', data.environnement.co2, CO2_GAUGE_MAX, co2Color, 'ppm', '', CO2_GAUGE_MIN);
     }
   } catch (erreur) {
     console.error(erreur);
     showError(`Impossible de charger les données (${erreur.message}). Vérifie que le backend tourne sur le port 8000.`);
 
-    if (!o2Gauge) o2Gauge = createGauge('o2Gauge', null, 25, '#16B876', 'O₂');
-    if (!batteryGauge) batteryGauge = createGauge('batteryGauge', null, 100, '#16B876', 'Charge');
+    if (!co2Gauge) co2Gauge = createGauge('co2Gauge', null, CO2_GAUGE_MAX, '#16B876', 'ppm', '', CO2_GAUGE_MIN);
   }
 }
 

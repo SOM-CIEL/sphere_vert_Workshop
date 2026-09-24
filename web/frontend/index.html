@@ -47,7 +47,7 @@
     </div>
   </div>
 
-  <main class="max-w-[1600px] w-full mx-auto px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+  <main class="max-w-[1600px] w-full mx-auto px-6 py-4 grid grid-cols-1 md:grid-cols-3 gap-4">
 
     <section class="md:col-span-2 bg-white border border-border rounded-[18px] shadow-crisp p-5">
       <header class="flex items-center justify-between mb-3">
@@ -89,73 +89,31 @@
         </div>
         <span class="text-[10px] font-mono text-inkSoft">SEC-01</span>
       </header>
-      <p class="text-[10px] uppercase tracking-wide text-inkSoft font-semibold text-center">Concentration O₂</p>
-      <div class="h-20"><canvas id="o2Gauge"></canvas></div>
+      <p class="text-[10px] uppercase tracking-wide text-inkSoft font-semibold text-center">CO₂</p>
+      <div class="h-20"><canvas id="co2Gauge"></canvas></div>
       <div class="text-center -mt-1">
         <p class="text-[10px] uppercase tracking-wide text-inkSoft font-semibold mb-1">État de la porte</p>
         <p id="doorState" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-paperAlt text-inkSoft font-mono text-xs font-semibold">--</p>
       </div>
     </section>
 
-    <section class="md:col-span-1 bg-white border border-border rounded-[18px] shadow-crisp p-5">
-      <header class="flex items-center justify-between mb-2">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">🌱</span>
-          <h2 class="font-bold text-sm">AgriTech</h2>
-        </div>
-        <span class="text-[10px] font-mono text-inkSoft">AGR-01</span>
-      </header>
-      <div class="h-20 flex flex-col justify-center">
-        <p class="text-[10px] uppercase tracking-wide text-inkSoft font-semibold mb-1">Humidité du sol</p>
-        <p class="font-mono text-3xl font-semibold" id="valSoil">--<span class="text-sm text-inkSoft ml-1">%</span></p>
-      </div>
-      <div class="h-2 rounded-full bg-paperAlt overflow-hidden">
-        <div id="soilBar" class="h-full bg-emerald-500 rounded-full transition-all duration-700" style="width:0%"></div>
-      </div>
-    </section>
-
     <section class="md:col-span-2 bg-white border border-border rounded-[18px] shadow-crisp p-5">
       <header class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
-          <span class="text-xl">🔋</span>
-          <h2 class="font-bold text-sm">Module Énergie</h2>
+          <span class="text-xl">📹</span>
+          <h2 class="font-bold text-sm">Caméra de surveillance</h2>
         </div>
-        <span class="text-[10px] font-mono text-inkSoft">PWR-01</span>
-      </header>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <p class="text-[10px] uppercase tracking-wide text-inkSoft font-semibold mb-0.5 text-center">Batterie</p>
-          <div class="h-20"><canvas id="batteryGauge"></canvas></div>
-        </div>
-        <div class="flex flex-col justify-center">
-          <p class="text-[10px] uppercase tracking-wide text-inkSoft font-semibold mb-0.5">Panneaux solaires</p>
-          <p class="font-mono text-3xl font-semibold" id="valSolar">--<span class="text-sm text-inkSoft ml-1">kW</span></p>
-          <p class="text-[10px] text-inkSoft mt-0.5">Production instantanée</p>
-        </div>
-      </div>
-      <div class="flex items-center justify-between mt-3 pt-3 border-t border-border">
-        <p class="text-[10px] uppercase tracking-wide text-inkSoft font-semibold">Historique</p>
-        <div class="flex items-center gap-3 text-[10px] font-mono text-inkSoft">
-          <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block"></span>% batt.</span>
-          <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-emerald-950 inline-block"></span>kW</span>
-        </div>
-      </div>
-      <div class="h-24 mt-1"><canvas id="energyChart"></canvas></div>
-    </section>
-
-    <section class="md:col-span-2 bg-white border border-border rounded-[18px] shadow-crisp p-5">
-      <header class="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div class="flex items-center gap-2">
-          <span class="text-xl">📊</span>
-          <h2 class="font-bold text-sm">Vue comparative</h2>
-        </div>
-        <div class="flex items-center gap-3 text-[10px] font-mono text-inkSoft">
-          <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block"></span>Temp.</span>
-          <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-emerald-950 inline-block"></span>Hum.</span>
-          <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-neon inline-block"></span>Lux</span>
+          <span id="cameraLiveDot" class="h-2 w-2 rounded-full bg-paperAlt"></span>
+          <span id="cameraLiveText" class="text-[10px] font-mono font-semibold text-inkSoft uppercase tracking-wide">Connexion…</span>
         </div>
       </header>
-      <div class="h-40"><canvas id="globalChart"></canvas></div>
+      <div class="relative rounded-[12px] overflow-hidden bg-emerald-950 h-64">
+        <iframe id="cameraStream" class="w-full h-full border-0" allow="autoplay" referrerpolicy="no-referrer"></iframe>
+        <div id="cameraOverlay" class="absolute inset-0 flex items-center justify-center bg-emerald-950/90 text-paper text-xs font-mono px-4 text-center">
+          Connexion au flux…
+        </div>
+      </div>
     </section>
 
   </main>

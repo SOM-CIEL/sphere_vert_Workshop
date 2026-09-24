@@ -1,5 +1,5 @@
 // Tout ce qui touche à Chart.js : le plugin de texte centré pour les
-// jauges, la fabrique de jauges, et les 3 graphiques d'historique.
+// jauges, la fabrique de jauges, et le graphique d'historique Environnement.
 
 Chart.defaults.font.family = '"Space Grotesk", sans-serif';
 Chart.defaults.color = '#4B6C5D';
@@ -31,27 +31,36 @@ Chart.register(centerTextPlugin);
 // value peut être null (capteur pas encore branché) : la jauge s'affiche
 // alors vide/grise avec "--" au centre, plutôt que de planter ou d'inventer
 // un chiffre.
+// Calcule la portion remplie d'une jauge dont l'échelle va de min à max
+// (pas forcément 0) — ex: CO2 affiché entre 1000 et 3000 ppm pour une
+// bien meilleure résolution visuelle que 0-5000.
+function gaugeSplit(value, min, max) {
+  const hasValue = typeof value === 'number' && !Number.isNaN(value);
+  const clamped = hasValue ? Math.min(Math.max(value, min), max) : min;
+  const filled = clamped - min;
+  const total = max - min;
+  return { hasValue, filled, empty: Math.max(total - filled, 0) };
+}
+
 // Met à jour une jauge existante (créée par createGauge) au lieu d'en
 // recréer une par-dessus — Chart.js refuse un 2e chart sur le même canvas.
-export function updateGauge(chart, value, max, color) {
-  const hasValue = typeof value === 'number' && !Number.isNaN(value);
-  const filled = hasValue ? value : 0;
-  chart.data.datasets[0].data = [filled, Math.max(max - filled, 0)];
+export function updateGauge(chart, value, max, color, unit = '%', min = 0) {
+  const { hasValue, filled, empty } = gaugeSplit(value, min, max);
+  chart.data.datasets[0].data = [filled, empty];
   chart.data.datasets[0].backgroundColor[0] = hasValue ? color : '#DCEAE2';
-  chart.options.plugins.centerText.text = hasValue ? `${Math.round(value)}%` : '--';
+  chart.options.plugins.centerText.text = hasValue ? `${Math.round(value)}${unit}` : '--';
   chart.options.plugins.centerText.color = hasValue ? color : '#4B6C5D';
   chart.update();
 }
 
-export function createGauge(canvasId, value, max, color, subtext) {
-  const hasValue = typeof value === 'number' && !Number.isNaN(value);
-  const filled = hasValue ? value : 0;
+export function createGauge(canvasId, value, max, color, subtext, unit = '%', min = 0) {
+  const { hasValue, filled, empty } = gaugeSplit(value, min, max);
   const ctx = document.getElementById(canvasId).getContext('2d');
   return new Chart(ctx, {
     type: 'doughnut',
     data: {
       datasets: [{
-        data: [filled, Math.max(max - filled, 0)],
+        data: [filled, empty],
         backgroundColor: [hasValue ? color : '#DCEAE2', '#EDF6F0'],
         borderWidth: 0,
       }],
@@ -67,7 +76,7 @@ export function createGauge(canvasId, value, max, color, subtext) {
         legend: { display: false },
         tooltip: { enabled: false },
         centerText: {
-          text: hasValue ? `${Math.round(value)}%` : '--',
+          text: hasValue ? `${Math.round(value)}${unit}` : '--',
           color: hasValue ? color : '#4B6C5D',
           subtext,
         },
@@ -107,62 +116,13 @@ export function createEnvChart() {
   });
 }
 
-export function createEnergyChart() {
-  return new Chart(document.getElementById('energyChart').getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [
-        { data: [], borderColor: '#16B876', backgroundColor: 'rgba(22,184,118,0.08)', fill: true, yAxisID: 'yBatt' },
-        { data: [], borderColor: '#052E1D', yAxisID: 'ySolar' },
-      ],
-    },
-    options: {
-      ...lineOptionsBase,
-      scales: {
-        x: { grid: { display: false }, ticks: { font: tickFont, maxTicksLimit: 5 } },
-        yBatt: { position: 'left', min: 0, max: 100, grid: { color: '#F1F8F4' }, ticks: { font: tickFont, maxTicksLimit: 4 } },
-        ySolar: { position: 'right', min: 0, max: 2.5, grid: { display: false }, ticks: { font: tickFont, maxTicksLimit: 4 } },
-      },
-    },
-  });
-}
-
-export function createGlobalChart() {
-  return new Chart(document.getElementById('globalChart').getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [
-        { data: [], borderColor: '#16B876', yAxisID: 'yTemp' },
-        { data: [], borderColor: '#052E1D', yAxisID: 'yPercent' },
-        { data: [], borderColor: '#22FF88', yAxisID: 'yLux' },
-      ],
-    },
-    options: {
-      ...lineOptionsBase,
-      scales: {
-        x: { grid: { display: false }, ticks: { font: tickFont, maxTicksLimit: 6 } },
-        yTemp: { position: 'left', grid: { color: '#F1F8F4' }, ticks: { font: tickFont, maxTicksLimit: 4 } },
-        yPercent: { position: 'right', grid: { display: false }, ticks: { font: tickFont, maxTicksLimit: 4 } },
-        yLux: { display: false },
-      },
-    },
-  });
-}
-
-// data.historique ne contient que temperature/humidite/luminosite pour
-// l'instant (seul module réellement en base) : batterie/solaire retombent
-// sur la valeur actuelle (constante) tant qu'ils n'ont pas leur propre
-// historique.
-export function updateCharts({ envChart, energyChart, globalChart }, data) {
+export function updateCharts({ envChart }, data) {
   const points = data.historique && data.historique.length > 0
     ? data.historique
     : [{
         heure: '--',
         temperature: data.environnement.temperature,
         humidite: data.environnement.humidite,
-        luminosite: data.environnement.luminosite,
       }];
 
   const labels = points.map((p) => p.heure);
@@ -171,15 +131,4 @@ export function updateCharts({ envChart, energyChart, globalChart }, data) {
   envChart.data.datasets[0].data = points.map((p) => p.temperature);
   envChart.data.datasets[1].data = points.map((p) => p.humidite);
   envChart.update('none');
-
-  energyChart.data.labels = labels;
-  energyChart.data.datasets[0].data = points.map(() => data.energie.batterie);
-  energyChart.data.datasets[1].data = points.map(() => data.energie.solaire);
-  energyChart.update('none');
-
-  globalChart.data.labels = labels;
-  globalChart.data.datasets[0].data = points.map((p) => p.temperature);
-  globalChart.data.datasets[1].data = points.map((p) => p.humidite);
-  globalChart.data.datasets[2].data = points.map((p) => p.luminosite);
-  globalChart.update('none');
 }
