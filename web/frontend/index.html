@@ -97,20 +97,20 @@
       </div>
     </section>
 
-    <section class="md:col-span-3 bg-white border border-border rounded-[18px] shadow-crisp p-5">
-      <header class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">📹</span>
-          <h2 class="font-bold text-sm">Caméra de surveillance</h2>
+    <section class="bg-white border border-border rounded-[18px] shadow-crisp p-4 max-w-xs">
+      <header class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-1.5">
+          <span class="text-base">📹</span>
+          <h2 class="font-bold text-xs">Caméra</h2>
         </div>
-        <div class="flex items-center gap-2">
-          <span id="cameraLiveDot" class="h-2 w-2 rounded-full bg-paperAlt"></span>
-          <span id="cameraLiveText" class="text-[10px] font-mono font-semibold text-inkSoft uppercase tracking-wide">Connexion…</span>
+        <div class="flex items-center gap-1.5">
+          <span id="cameraLiveDot" class="h-1.5 w-1.5 rounded-full bg-paperAlt"></span>
+          <span id="cameraLiveText" class="text-[9px] font-mono font-semibold text-inkSoft uppercase tracking-wide">Connexion…</span>
         </div>
       </header>
-      <div class="relative rounded-[12px] overflow-hidden bg-emerald-950 aspect-video">
+      <div class="relative rounded-[10px] overflow-hidden bg-emerald-950 h-32">
         <iframe id="cameraStream" class="w-full h-full border-0" allow="autoplay" referrerpolicy="no-referrer"></iframe>
-        <div id="cameraOverlay" class="absolute inset-0 flex items-center justify-center bg-emerald-950/90 text-paper text-xs font-mono px-4 text-center">
+        <div id="cameraOverlay" class="absolute inset-0 flex items-center justify-center bg-emerald-950/90 text-paper text-[10px] font-mono px-3 text-center">
           Connexion au flux…
         </div>
       </div>
