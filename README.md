@@ -204,6 +204,8 @@ Les ESP32 et ESP8266 se connectent au réseau Wi-Fi fourni par le Raspberry Pi.
  Raspberry Pi
         │
         └── Mosquitto MQTT
+```
+
 ---
 
 ## 🌿 Structure Git
