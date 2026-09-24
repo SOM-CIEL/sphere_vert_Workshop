@@ -5,12 +5,14 @@
 import { chargerDonnees } from './data.js';
 import { startClock, renderValues, checkAlerts, showError, thresholds } from './ui.js';
 import { createGauge, updateGauge, createEnvChart, updateCharts } from './charts.js';
+import { initCamera } from './camera.js';
 
 const REFRESH_INTERVAL_MS = 1000;
 const CO2_GAUGE_MIN = 1000; // bornes de la jauge, en ppm (plage réellement observée)
 const CO2_GAUGE_MAX = 3000;
 
 startClock();
+initCamera();
 
 const charts = {
   envChart: createEnvChart(),

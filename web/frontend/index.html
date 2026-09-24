@@ -97,6 +97,25 @@
       </div>
     </section>
 
+    <section class="md:col-span-3 bg-white border border-border rounded-[18px] shadow-crisp p-5">
+      <header class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📹</span>
+          <h2 class="font-bold text-sm">Caméra de surveillance</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="cameraLiveDot" class="h-2 w-2 rounded-full bg-paperAlt"></span>
+          <span id="cameraLiveText" class="text-[10px] font-mono font-semibold text-inkSoft uppercase tracking-wide">Connexion…</span>
+        </div>
+      </header>
+      <div class="relative rounded-[12px] overflow-hidden bg-emerald-950 aspect-video">
+        <iframe id="cameraStream" class="w-full h-full border-0" allow="autoplay" referrerpolicy="no-referrer"></iframe>
+        <div id="cameraOverlay" class="absolute inset-0 flex items-center justify-center bg-emerald-950/90 text-paper text-xs font-mono px-4 text-center">
+          Connexion au flux…
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <script type="module" src="js/main.js"></script>
