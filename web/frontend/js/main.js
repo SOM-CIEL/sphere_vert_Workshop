@@ -14,7 +14,8 @@ import {
 } from './charts.js';
 
 const REFRESH_INTERVAL_MS = 1000;
-const CO2_GAUGE_MAX = 5000; // pleine échelle de la jauge, en ppm (borne haute du capteur)
+const CO2_GAUGE_MIN = 1000; // bornes de la jauge, en ppm (plage réellement observée)
+const CO2_GAUGE_MAX = 3000;
 
 startClock();
 
@@ -40,17 +41,17 @@ async function refresh() {
       : '#16B876';
 
     if (co2Gauge && batteryGauge) {
-      updateGauge(co2Gauge, data.environnement.co2, CO2_GAUGE_MAX, co2Color, ' ppm');
+      updateGauge(co2Gauge, data.environnement.co2, CO2_GAUGE_MAX, co2Color, ' ppm', CO2_GAUGE_MIN);
       updateGauge(batteryGauge, data.energie.batterie, 100, '#16B876');
     } else {
-      co2Gauge = createGauge('co2Gauge', data.environnement.co2, CO2_GAUGE_MAX, co2Color, 'CO₂', ' ppm');
+      co2Gauge = createGauge('co2Gauge', data.environnement.co2, CO2_GAUGE_MAX, co2Color, 'CO₂', ' ppm', CO2_GAUGE_MIN);
       batteryGauge = createGauge('batteryGauge', data.energie.batterie, 100, '#16B876', 'Charge');
     }
   } catch (erreur) {
     console.error(erreur);
     showError(`Impossible de charger les données (${erreur.message}). Vérifie que le backend tourne sur le port 8000.`);
 
-    if (!co2Gauge) co2Gauge = createGauge('co2Gauge', null, CO2_GAUGE_MAX, '#16B876', 'CO₂', ' ppm');
+    if (!co2Gauge) co2Gauge = createGauge('co2Gauge', null, CO2_GAUGE_MAX, '#16B876', 'CO₂', ' ppm', CO2_GAUGE_MIN);
     if (!batteryGauge) batteryGauge = createGauge('batteryGauge', null, 100, '#16B876', 'Charge');
   }
 }

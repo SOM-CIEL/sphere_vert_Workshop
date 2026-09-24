@@ -31,27 +31,36 @@ Chart.register(centerTextPlugin);
 // value peut être null (capteur pas encore branché) : la jauge s'affiche
 // alors vide/grise avec "--" au centre, plutôt que de planter ou d'inventer
 // un chiffre.
+// Calcule la portion remplie d'une jauge dont l'échelle va de min à max
+// (pas forcément 0) — ex: CO2 affiché entre 1000 et 3000 ppm pour une
+// bien meilleure résolution visuelle que 0-5000.
+function gaugeSplit(value, min, max) {
+  const hasValue = typeof value === 'number' && !Number.isNaN(value);
+  const clamped = hasValue ? Math.min(Math.max(value, min), max) : min;
+  const filled = clamped - min;
+  const total = max - min;
+  return { hasValue, filled, empty: Math.max(total - filled, 0) };
+}
+
 // Met à jour une jauge existante (créée par createGauge) au lieu d'en
 // recréer une par-dessus — Chart.js refuse un 2e chart sur le même canvas.
-export function updateGauge(chart, value, max, color, unit = '%') {
-  const hasValue = typeof value === 'number' && !Number.isNaN(value);
-  const filled = hasValue ? Math.min(value, max) : 0;
-  chart.data.datasets[0].data = [filled, Math.max(max - filled, 0)];
+export function updateGauge(chart, value, max, color, unit = '%', min = 0) {
+  const { hasValue, filled, empty } = gaugeSplit(value, min, max);
+  chart.data.datasets[0].data = [filled, empty];
   chart.data.datasets[0].backgroundColor[0] = hasValue ? color : '#DCEAE2';
   chart.options.plugins.centerText.text = hasValue ? `${Math.round(value)}${unit}` : '--';
   chart.options.plugins.centerText.color = hasValue ? color : '#4B6C5D';
   chart.update();
 }
 
-export function createGauge(canvasId, value, max, color, subtext, unit = '%') {
-  const hasValue = typeof value === 'number' && !Number.isNaN(value);
-  const filled = hasValue ? Math.min(value, max) : 0;
+export function createGauge(canvasId, value, max, color, subtext, unit = '%', min = 0) {
+  const { hasValue, filled, empty } = gaugeSplit(value, min, max);
   const ctx = document.getElementById(canvasId).getContext('2d');
   return new Chart(ctx, {
     type: 'doughnut',
     data: {
       datasets: [{
-        data: [filled, Math.max(max - filled, 0)],
+        data: [filled, empty],
         backgroundColor: [hasValue ? color : '#DCEAE2', '#EDF6F0'],
         borderWidth: 0,
       }],
