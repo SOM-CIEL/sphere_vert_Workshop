@@ -7,10 +7,10 @@
 #include <Wire.h>
 #include <BH1750.h>
 
-const char* ssid = "Pixel_3808";
-const char* password = "pixeldejojo";
+const char* ssid = "horizon";
+const char* password = "horizon69";
 
-const char* mqtt_server = "10.230.174.77";
+const char* mqtt_server = "10.42.0.150";
 const int mqtt_port = 1883;
 
 const char* mqtt_user = "esp8266_securite";

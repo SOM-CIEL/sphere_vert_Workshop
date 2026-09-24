@@ -8,50 +8,29 @@ L'objectif du projet est de concevoir plusieurs systèmes embarqués permettant 
 
 ## 🛰️ Architecture du projet
 
-Le projet est composé de plusieurs systèmes physiques équipés de capteurs et pilotés par des **ESP32**.
+Le projet est composé de plusieurs systèmes physiques équipés de capteurs et pilotés par des **ESP32** et **ESP8266**.
 
 Les données sont transmises par Wi-Fi vers un **Raspberry Pi**, qui centralise les communications et les données.
 
 ```text
-                  ┌──────────────────────────┐
-                  │   ESP32 Environnement    │
-                  │ Temp. / Hum. / Pression  │
-                  │       / Luminosité       │
-                  └────────────┬─────────────┘
-                               │
-                               │ Wi-Fi / MQTT
-                               │
-                  ┌────────────▼─────────────┐
-                  │    ESP32 AgriTech        │
-                  │    Humidité du sol       │
-                  └────────────┬─────────────┘
-                               │
-                               │
-                  ┌────────────▼─────────────┐
-                  │    ESP32 Sécurité        │
-                  │       O₂ / Ultrason      │
-                  └────────────┬─────────────┘
-                               │
-                               │ Wi-Fi / MQTT
-                               ▼
-                  ┌──────────────────────────┐
-                  │      Raspberry Pi        │
-                  │                          │
-                  │    Mosquitto MQTT        │
-                  │    Backend / API         │
-                  │    Base de données       │
-                  │    Serveur Web           │
-                  └────────────┬─────────────┘
-                               │
-                               │ HTTP / WebSocket
-                               ▼
-                  ┌──────────────────────────┐
-                  │      Dashboard Web       │
-                  │                          │
-                  │  Données en temps réel   │
-                  │  État des systèmes       │
-                  │  Alertes / historique    │
-                  └──────────────────────────┘
+
+                  ┌──────────────────────┐
+                  │     Raspberry Pi     │
+                  │                      │
+                  │   Point d'accès Wi-Fi│
+                  │   Mosquitto MQTT     │
+                  │   FastAPI / Uvicorn  │
+                  │   SQLite             │
+                  └──────────┬───────────┘
+                             │
+                ┌────────────┼────────────┐
+                │            │            │
+              Wi-Fi        Wi-Fi        Wi-Fi
+                │            │            │
+          ┌─────▼─────┐ ┌────▼──────┐ ┌──▼─────────┐
+          │   ESP32   │ │   ESP32   │ │  ESP8266   │
+          │  Sécurité │ │           | Environnement│
+          └───────────┘ └───────────┘ └────────────┘
 ```
 
 ---
@@ -60,14 +39,15 @@ Les données sont transmises par Wi-Fi vers un **Raspberry Pi**, qui centralise 
 
 ### Serveur
 
-* Raspberry Pi 4 – 2 Go
+* Raspberry Pi 3B – 1 Go
 * Carte microSD
 * Alimentation USB-C
-* Boîtier et refroidissement
+* Boîtier
 
 ### Systèmes embarqués
 
-* 3 × ESP32
+* 2 x ESP32
+* 1 x ESP8266
 
 ### Capteurs
 
@@ -82,14 +62,9 @@ Les données sont transmises par Wi-Fi vers un **Raspberry Pi**, qui centralise 
 
   * Luminosité
 
-#### 🌱 AgriTech
-
-* Capteur d'humidité du sol
-
 #### 🛡️ Sécurité / surveillance
 
-* Capteur d'O₂
-* Capteur ultrason
+* Capteur d'CO₂
 
 ### Prototypage
 
@@ -101,22 +76,17 @@ Les données sont transmises par Wi-Fi vers un **Raspberry Pi**, qui centralise 
 
 ## 📡 Communication
 
-La communication entre les ESP32 et le Raspberry Pi repose sur **MQTT**.
+La communication entre les ESP et le Raspberry Pi repose sur **MQTT**.
 
-Chaque ESP32 publie les données de ses capteurs sur des topics MQTT.
+Chaque ESP publie les données de ses capteurs sur des topics MQTT.
 
 Exemple :
 
 ```text
 vaisseau/environnement/temperature
 vaisseau/environnement/humidite
-vaisseau/environnement/pression
 vaisseau/environnement/luminosite
-
-vaisseau/agritech/humidite_sol
-
-vaisseau/securite/o2
-vaisseau/securite/distance
+vaisseau/environnement/co2
 ```
 
 Le Raspberry Pi joue le rôle de serveur central et héberge le **broker MQTT Mosquitto**.
@@ -132,7 +102,6 @@ Une interface web permet de centraliser les informations provenant des différen
 Elle permettra notamment de :
 
 * consulter les mesures en temps réel ;
-* visualiser l'état des différents systèmes ;
 * afficher les alertes ;
 * consulter l'historique des données ;
 * surveiller les conditions environnementales du vaisseau.
@@ -154,16 +123,12 @@ horizon-2080/
 │       ├── mosquitto.conf
 │       └── passwd
 │
-├── esp32/
-│   ├── environnement/
-│   │   ├── src/
-│   │   └── README.md
-│   │
-│   └── agritech/
+├── esp8266/
+│   └── environnement/
 │       ├── src/
 │       └── README.md
 │
-├── esp8266/
+├── esp32/
 │   └── securite/
 │       ├── src/
 │       └── README.md
@@ -178,48 +143,32 @@ horizon-2080/
 │   └── README.md
 │
 ├── docs/
-│   ├── architecture/
-│   ├── capteurs/
-│   ├── reseau/
-│   └── presentation/
-│
-└── hardware/
-    ├── schemas/
-    ├── cablage/
-    └── composants.md
+    ├── architecture/
+    ├── capteurs/
+    ├── reseau/
+    └── presentation/
 ```
 
 ---
 
 ## 🌿 Systèmes
 
-### ESP32 #1 — Environnement
+### ESP8266 #1 — Environnement
 
 Surveillance des conditions environnementales du vaisseau :
 
 * température ;
 * humidité de l'air ;
-* pression ;
 * luminosité.
+* cO2
 
 ---
 
-### ESP32 #2 — AgriTech
-
-Surveillance des conditions nécessaires aux cultures :
-
-* humidité du sol.
-
-Les données permettent de suivre l'état des cultures et pourront servir à de futures fonctions d'automatisation.
-
----
-
-### ESP32 #3 — Sécurité
+### ESP32 #2 — Sécurité
 
 Surveillance de paramètres liés à la sécurité et à l'environnement :
 
-* concentration d'O₂ ;
-* distance / présence d'un obstacle.
+*
 
 ---
 
@@ -233,37 +182,28 @@ Raspberry Pi
 ├── Mosquitto
 │   └── MQTT
 │
-├── Backend
-│   └── API
+├── FastAPI / Uvicorn
+│   ├── API
+|   └── Interface Web
 │
-├── Database
-│   └── Stockage des mesures
-│
-└── Web Server
-    └── Dashboard
+└── SQLite
+    └── Stockage des mesures
 ```
 
 ---
 
 ## 🌐 Réseau
 
-Les ESP32 communiquent avec le Raspberry Pi via le réseau Wi-Fi.
+Les ESP32 et ESP8266 se connectent au réseau Wi-Fi fourni par le Raspberry Pi.
 
 ```text
-ESP32
-  │
-  │ Wi-Fi
-  ▼
-Réseau local
-  │
-  ▼
-Raspberry Pi
-  │
-  └── Mosquitto MQTT
-```
-
-Chaque ESP32 possède une identité permettant au serveur d'identifier la provenance des données.
-
+ ESP32 / ESP8266
+        │
+        │ Wi-Fi
+        ▼
+ Raspberry Pi
+        │
+        └── Mosquitto MQTT
 ---
 
 ## 🌿 Structure Git
@@ -275,12 +215,9 @@ Les développements sont réalisés sur des branches dédiées :
 ```text
 main
 │
-├── feature/esp32-environnement
-├── feature/esp32-agritech
-├── feature/esp32-securite
 ├── feature/backend-mqtt
-├── feature/web-dashboard
-└── feature/server
+├── feature/frontend
+└── feature/database
 ```
 
 ### Workflow
@@ -309,25 +246,6 @@ refactor: separation lecture et envoi des donnees @utilisateur
 
 ---
 
-## 👥 Répartition de l'équipe
-
-### Développement
-
-* Développeur 1 → ESP32 Environnement
-* Développeur 2 → ESP32 AgriTech
-* Développeur 3 → ESP32 Sécurité
-* Développeur 4 → Backend / MQTT / Base de données
-* Développeur 5 → Interface Web
-
-### Réseau
-
-* Réseau 1 → Architecture réseau / Wi-Fi / MQTT
-* Réseau 2 → Raspberry Pi / Serveur / Déploiement
-
-La répartition peut évoluer selon les besoins du projet.
-
----
-
 ## 📚 Documentation
 
 La documentation technique est regroupée dans le dossier `docs/`.
@@ -348,15 +266,6 @@ docs/
     └── ...
 ```
 
-Les schémas électroniques et de câblage sont placés dans :
-
-```text
-hardware/
-├── schemas/
-├── cablage/
-└── composants.md
-```
-
 ---
 
 ## 🎯 Objectifs
@@ -364,7 +273,6 @@ hardware/
 Le projet doit permettre de :
 
 * surveiller les conditions de vie à bord ;
-* surveiller les cultures ;
 * détecter certaines situations pouvant représenter un risque ;
 * centraliser les informations provenant des différents systèmes ;
 * permettre une supervision depuis une interface web ;
@@ -377,7 +285,6 @@ Le projet doit permettre de :
 
 L'architecture pourra être étendue avec de nouveaux systèmes ou capteurs :
 
-* automatisation de l'irrigation ;
 * contrôle automatique de l'éclairage ;
 * détection d'anomalies ;
 * gestion énergétique ;
