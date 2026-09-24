@@ -10,7 +10,7 @@
 const char* ssid = "horizon";
 const char* password = "horizon69";
 
-const char* mqtt_server = "10.42.0.150";
+const char* mqtt_server = "10.42.0.1";
 const int mqtt_port = 1883;
 
 const char* mqtt_user = "esp8266_securite";
