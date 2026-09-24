@@ -16,6 +16,8 @@ const int mqtt_port = 1883;
 const char* mqtt_user = "esp8266_securite";
 const char* mqtt_password = "esp8266_securite";
 
+const int co2Pin = D0;
+
 BH1750 lightMeter;
 
 WiFiClient espClient;
@@ -26,6 +28,7 @@ void setup() {
   Serial.begin(115200);
 
   CapteurHumiditeTemp::Begin();
+  pinMode(co2Pin, INPUT);
 
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -115,6 +118,22 @@ void loop() {
 
   float humidite = updateData.GetHumidite();
   float temperature = updateData.GetTemperature();
+
+  unsigned long duree_us = pulseIn(co2Pin, HIGH, 2000000UL);
+
+  if(duree_us > 0) {
+    float th_ms = duree_us / 1000.0;
+
+    float ppmCO2 = 5000.0 * (th_ms - 2.0) / 1000.0;
+
+    if(ppmCO2 < 0) ppmCO2 = 0;
+    if(ppmCO2 > 5000) ppmCO2 = 5000;
+
+    client.publish("vaisseau/environnement/CO2", String(ppmCO2).c_str());
+  }
+  else {
+    Serial.println("pas de signal, vérifier cablage D0");
+  }
 
   Serial.print("MQTT : ");
 

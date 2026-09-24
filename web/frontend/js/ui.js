@@ -61,8 +61,8 @@ export function checkAlerts(data) {
   const alertText = document.getElementById('alertText');
   const dot = alertBar.querySelector('span');
   const messages = [];
-  if (typeof data.securite.o2 === 'number' && data.securite.o2 < thresholds.o2Min) {
-    messages.push(`O₂ bas (${fmt(data.securite.o2, 1)}%)`);
+  if (typeof data.environnement.o2 === 'number' && data.environnement.o2 < thresholds.o2Min) {
+    messages.push(`O₂ bas (${fmt(data.environnement.o2, 1)}%)`);
   }
   if (typeof data.energie.batterie === 'number' && data.energie.batterie < thresholds.batteryMin) {
     messages.push(`Batterie critique (${fmt(data.energie.batterie, 0)}%)`);

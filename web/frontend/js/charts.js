@@ -163,6 +163,7 @@ export function updateCharts({ envChart, energyChart, globalChart }, data) {
         temperature: data.environnement.temperature,
         humidite: data.environnement.humidite,
         luminosite: data.environnement.luminosite,
+        co2: data.environnement.co2,
       }];
 
   const labels = points.map((p) => p.heure);

@@ -35,10 +35,10 @@ async function refresh() {
     updateCharts(charts, data);
 
     if (o2Gauge && batteryGauge) {
-      updateGauge(o2Gauge, data.securite.o2, 25, '#16B876');
+      updateGauge(o2Gauge, data.environnement.o2, 25, '#16B876');
       updateGauge(batteryGauge, data.energie.batterie, 100, '#16B876');
     } else {
-      o2Gauge = createGauge('o2Gauge', data.securite.o2, 25, '#16B876', 'O₂');
+      o2Gauge = createGauge('o2Gauge', data.environnement.o2, 25, '#16B876', 'O₂');
       batteryGauge = createGauge('batteryGauge', data.energie.batterie, 100, '#16B876', 'Charge');
     }
   } catch (erreur) {

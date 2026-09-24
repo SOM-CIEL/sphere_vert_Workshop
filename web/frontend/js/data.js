@@ -13,7 +13,7 @@ const API_BASE_URL = 'http://localhost:8000';
 async function fetchEnvironnementActuel() {
   const reponse = await fetch(`${API_BASE_URL}/environnement`);
   if (!reponse.ok) throw new Error(`GET /environnement : ${reponse.status}`);
-  return reponse.json(); // { temperature, humidite, luminosite }
+  return reponse.json(); // { temperature, humidite, luminosite, co2 }
 }
 
 async function fetchMesures() {
@@ -25,6 +25,7 @@ async function fetchMesures() {
     temperature: ligne.temperature,
     humidite: ligne.humidite,
     luminosite: ligne.luminosite,
+    co2: ligne.co2,
   }));
 }
 
@@ -35,9 +36,6 @@ async function fetchMesures() {
 // attendant, elles renvoient null pour que l'interface affiche "--" plutôt
 // que d'inventer une valeur.
 // -----------------------------------------------------------------------
-async function fetchAgritech() {
-  return { humiditeSol: null };
-}
 async function fetchSecurite() {
   return { o2: null, porte: null }; // porte: "ouverte" | "fermee" | "verrouillee"
 }
@@ -60,6 +58,7 @@ export async function chargerDonnees() {
       temperature: actuel?.temperature ?? null,
       humidite: actuel?.humidite ?? null,
       luminosite: actuel?.luminosite ?? null,
+      co2: actuel?.co2 ?? null,
     },
     agritech,
     securite,
