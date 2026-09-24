@@ -33,19 +33,19 @@ Chart.register(centerTextPlugin);
 // un chiffre.
 // Met à jour une jauge existante (créée par createGauge) au lieu d'en
 // recréer une par-dessus — Chart.js refuse un 2e chart sur le même canvas.
-export function updateGauge(chart, value, max, color) {
+export function updateGauge(chart, value, max, color, unit = '%') {
   const hasValue = typeof value === 'number' && !Number.isNaN(value);
-  const filled = hasValue ? value : 0;
+  const filled = hasValue ? Math.min(value, max) : 0;
   chart.data.datasets[0].data = [filled, Math.max(max - filled, 0)];
   chart.data.datasets[0].backgroundColor[0] = hasValue ? color : '#DCEAE2';
-  chart.options.plugins.centerText.text = hasValue ? `${Math.round(value)}%` : '--';
+  chart.options.plugins.centerText.text = hasValue ? `${Math.round(value)}${unit}` : '--';
   chart.options.plugins.centerText.color = hasValue ? color : '#4B6C5D';
   chart.update();
 }
 
-export function createGauge(canvasId, value, max, color, subtext) {
+export function createGauge(canvasId, value, max, color, subtext, unit = '%') {
   const hasValue = typeof value === 'number' && !Number.isNaN(value);
-  const filled = hasValue ? value : 0;
+  const filled = hasValue ? Math.min(value, max) : 0;
   const ctx = document.getElementById(canvasId).getContext('2d');
   return new Chart(ctx, {
     type: 'doughnut',
@@ -67,7 +67,7 @@ export function createGauge(canvasId, value, max, color, subtext) {
         legend: { display: false },
         tooltip: { enabled: false },
         centerText: {
-          text: hasValue ? `${Math.round(value)}%` : '--',
+          text: hasValue ? `${Math.round(value)}${unit}` : '--',
           color: hasValue ? color : '#4B6C5D',
           subtext,
         },
@@ -163,6 +163,7 @@ export function updateCharts({ envChart, energyChart, globalChart }, data) {
         temperature: data.environnement.temperature,
         humidite: data.environnement.humidite,
         luminosite: data.environnement.luminosite,
+        co2: data.environnement.co2,
       }];
 
   const labels = points.map((p) => p.heure);

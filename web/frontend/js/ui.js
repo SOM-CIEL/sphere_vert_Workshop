@@ -1,7 +1,7 @@
 // Tout ce qui touche au DOM "statique" (hors graphiques) : horloge,
 // valeurs des capteurs, statut de la porte, pastille système, alertes.
 
-export const thresholds = { o2Min: 19.5, batteryMin: 15, soilMin: 20 };
+export const thresholds = { co2Max: 1000, batteryMin: 15, soilMin: 20 };
 
 const doorLabels = {
   ouverte: { text: '🔓 Ouverte', class: 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-600 text-white font-mono text-xs font-semibold' },
@@ -61,8 +61,8 @@ export function checkAlerts(data) {
   const alertText = document.getElementById('alertText');
   const dot = alertBar.querySelector('span');
   const messages = [];
-  if (typeof data.securite.o2 === 'number' && data.securite.o2 < thresholds.o2Min) {
-    messages.push(`O₂ bas (${fmt(data.securite.o2, 1)}%)`);
+  if (typeof data.environnement.co2 === 'number' && data.environnement.co2 > thresholds.co2Max) {
+    messages.push(`CO₂ élevé (${fmt(data.environnement.co2, 0)} ppm)`);
   }
   if (typeof data.energie.batterie === 'number' && data.energie.batterie < thresholds.batteryMin) {
     messages.push(`Batterie critique (${fmt(data.energie.batterie, 0)}%)`);

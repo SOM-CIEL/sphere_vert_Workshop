@@ -53,6 +53,9 @@ async def message(client, topic, payload, qos, properties):
 
     elif topic == "vaisseau/environnement/luminosite":
         conn.execute("UPDATE environnement SET luminosite = ?", (value,))
+
+    elif topic == "vaisseau/environnement/CO2":
+        conn.execute("UPDATE environnement SET co2 = ?", (value,))
         
     conn.commit()
     conn.close()
@@ -66,9 +69,9 @@ async def sauvegarder_mesures():
         donnees = conn.execute("SELECT * FROM environnement").fetchone()
         conn.execute("""
         INSERT INTO mesures
-        (temperature, humidite, luminosite)
-        VALUES (?, ?, ?)
-        """, (donnees["temperature"], donnees["humidite"], donnees["luminosite"]))
+        (temperature, humidite, luminosite, co2)
+        VALUES (?, ?, ?, ?)
+        """, (donnees["temperature"], donnees["humidite"], donnees["luminosite"], donnees["co2"]))
         conn.commit()
         conn.close()
         await asyncio.sleep(30)
