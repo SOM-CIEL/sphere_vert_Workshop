@@ -1,7 +1,7 @@
 // Tout ce qui touche au DOM "statique" (hors graphiques) : horloge,
 // valeurs des capteurs, statut de la porte, pastille système, alertes.
 
-export const thresholds = { co2Max: 1000, batteryMin: 15, soilMin: 20 };
+export const thresholds = { co2Max: 3000, batteryMin: 15, soilMin: 20 };
 
 const doorLabels = {
   ouverte: { text: '🔓 Ouverte', class: 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-600 text-white font-mono text-xs font-semibold' },

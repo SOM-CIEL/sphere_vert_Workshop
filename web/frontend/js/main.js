@@ -14,7 +14,7 @@ import {
 } from './charts.js';
 
 const REFRESH_INTERVAL_MS = 1000;
-const CO2_GAUGE_MAX = 2000; // pleine échelle de la jauge, en ppm
+const CO2_GAUGE_MAX = 5000; // pleine échelle de la jauge, en ppm (borne haute du capteur)
 
 startClock();
 
